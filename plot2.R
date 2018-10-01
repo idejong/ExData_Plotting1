@@ -1,0 +1,29 @@
+library(rstudioapi) 
+
+# 0. Set the Working directory to the location holding this script Plot_1.R
+setwd(dirname(getActiveDocumentContext()$path))
+
+# 1. Load the data:
+data <- read.table('..\\Data\\household_power_consumption.txt', sep=";", header = TRUE, stringsAsFactors=FALSE)
+
+# 2. Convert Date and Time variables to Date/Time classes:
+data$Date <- as.Date(data$Date, format = "%d/%m/%Y")
+
+# 3. Subset the data based on the dates of interest 2007-02-01 and 2007-02-02:
+data_subset <- subset(data, ((data$Date == '2007-02-01') | (data$Date == '2007-02-02')))
+
+# 4. Convert the datatype of Global_active_power to numeric:
+data_subset$Global_active_power <- as.numeric(data_subset$Global_active_power)
+
+# 5. Set language settigs to English for the weekday labels to be presented in English:
+Sys.setlocale("LC_TIME", "C")
+
+# 6. Merge Date and Time variables together in a new variable datetime, and use POSIXct to convert its datatype
+#   to a datetime datatype.
+data_subset$datetime <- with(data_subset, as.POSIXct(paste(Date, Time), format="%Y-%m-%d %H:%M:%S"))
+
+# 7. Construct plot2 in a png graphical device:
+png(filename = "plot2.png", width = 480, height = 480)
+plot(data_subset$Global_active_power ~ datetime, data=data_subset, "n", ylab='Global Active Power (kilowatts)', xlab="")
+lines(data_subset$Global_active_power ~ data_subset$datetime)
+dev.off()
